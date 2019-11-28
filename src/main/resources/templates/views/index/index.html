@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>代码生成工具</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <meta name="renderer" content="webkit" />
+        <meta name="viewport" content="width=1200" />
+        <link rel="icon" th:href="@{/img/favicon.png}" type="image/x-icon" />
+        <link rel="stylesheet" th:href="@{/css/element-ui.css}" />
+        <link rel="stylesheet" th:href="@{/css/util.css}">
+        <link rel="stylesheet" th:href="@{/css/index.css}" />
+    </head>
+    <body>
+        <div id="app" v-cloak v-loading="loading">
+
+            <div th:insert="/views/index/header::header"></div>
+
+            <div class="nav">
+                <el-menu id="menu" :default-active="menu.activeMenuId" v-cloak background-color="#eef1f6">
+                    <template v-for="item in menu.menuItems">
+                        <el-menu-item v-if="!item.subMenuItems" :index="item.menuId"><i :class="item.iconClass"></i>{{item.menuName}}<a
+                                :href="item.href" target="content"></a></el-menu-item>
+                        <el-submenu v-else :index="item.menuId">
+                            <template slot="title"><i :class="item.iconClass"></i>{{item.menuName}}</template>
+                            <template v-for="item in item.subMenuItems">
+                                <el-menu-item v-if="!item.subMenuItems" :index="item.menuId">{{item.menuName}}<a
+                                        :href="item.href" target="content"></a></el-menu-item>
+                                <template v-else>
+                                    <el-submenu :index="item.menuId">
+                                        <template slot="title">{{item.menuName}}</template>
+                                        <el-menu-item :key="item.menuId" v-for="item in item.subMenuItems"
+                                                      :index="item.menuId">{{item.menuName}}<a :href="item.href"
+                                                                                               target="content"></a>
+                                        </el-menu-item>
+                                    </el-submenu>
+                                </template>
+                            </template>
+                        </el-submenu>
+                    </template>
+                </el-menu>
+
+                <div id="navCollapse" class="nav-collapse">
+                    <i class="el-icon-arrow-right"></i>
+                    <i class="el-icon-arrow-left"></i>
+                </div>
+            </div>
+            <div class="main">
+                <iframe id="content" frameborder="0" name="content"></iframe>
+            </div>
+        </div>
+
+        <script th:src="@{/js/common/jquery-1.11.3.min.js}"></script>
+        <script th:src="@{/js/common/vue.js}"></script>
+        <script th:src="@{/js/common/axios.min.js}"></script>
+        <script th:src="@{/js/common/element-ui.js}"></script>
+        <script th:src="@{/js/common/qs.min.js}"></script>
+
+        <script th:inline="javascript">
+            $UC = {
+                ctxPath: /*[[${#httpServletRequest.getContextPath()}]]*/ null
+            };
+        </script>
+        <script th:inline="javascript">
+            var vm = new Vue({
+                el: '#app',
+                data: function () {
+                    var menu = {
+                        activeMenuId: '01',
+                        menuItems: [
+                            {
+                                menuId: '01', menuName: '数据管理', href: '#', iconClass: 'el-icon-setting',
+                                subMenuItems: [
+                                    {
+                                        menuId: '011',
+                                        menuName: '数据源管理',
+                                        href: $UC.ctxPath + '/database-page',
+                                        iconClass: ''
+                                    }
+                                ]
+                            }, {
+                                menuId: '02', menuName: '常用工具', href: '#', iconClass: 'el-icon-news',
+                                subMenuItems: [
+                                    {
+                                        menuId: '021',
+                                        menuName: 'MarkDown',
+                                        href: $UC.ctxPath + '/tools/to-markdown'
+                                    },
+                                    {
+                                        menuId: '031',
+                                        menuName: '在线编辑器',
+                                        href: $UC.ctxPath + '/tools/to-editor'
+                                    }
+                                ]
+                            }
+                        ]
+                    };
+                    return {
+                        loading: false,
+                        menu: menu
+                    };
+                },
+                created: function () {
+                    this.init()
+                },
+                methods: {
+                    init: function () {
+                        this.menu.activeMenuId = this.menu.menuItems[0].subMenuItems[0].menuId;
+                        document.getElementById("content").src = this.menu.menuItems[0].subMenuItems[0].href;
+                    }
+                }
+
+            });
+
+            (function () {
+                var t = document.getElementById("navCollapse");
+                if (t) {
+                    var e = document.body, n = t.parentElement;
+                    t.onclick = function (t) {
+                        e.className = -1 == e.className.indexOf(" collapsed") ? e.className + " collapsed" : e.className.replace(" collapsed", ""), t.stopPropagation()
+                    }, n.onclick = function () {
+                        -1 != e.className.indexOf(" collapsed") && (e.className = e.className.replace(" collapsed", ""))
+                    }
+                }
+            })();
+        </script>
+    </body>
+</html>

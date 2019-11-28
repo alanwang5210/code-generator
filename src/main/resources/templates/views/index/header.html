@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+    <body>
+        <div th:fragment="header">
+            <div class="header">
+                <a href="#" class="logo">
+                    <img th:src="@{/img/favicon.ico}">
+                    <span>MybatisPlus代码生成工具</span>
+                </a>
+                <div id="header" v-cloak>
+                    <div class="header-login">
+                        <el-dropdown>
+                            <span class="header-login-content">
+                                <img class="header-login-photo" th:src="@{/img/photo.png}" />
+                                <span th:text="${users.username}"></span>
+                                <i class="el-icon-arrow-down"></i>
+                            </span>
+                            <el-dropdown-menu slot="dropdown">
+                                <el-dropdown-item><a href="#">修改密码</a></el-dropdown-item>
+                                <el-dropdown-item><a th:href="@{/logout}">退出</a></el-dropdown-item>
+                            </el-dropdown-menu>
+                        </el-dropdown>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

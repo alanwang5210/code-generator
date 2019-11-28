@@ -1,0 +1,151 @@
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.w3.org/1999/xhtml"
+      layout:decorate="~{/layouts/default}">
+    <th:block layout:fragment="title">
+        数据库表
+    </th:block>
+    <!-- head -->
+    <th:block layout:fragment="head">
+        <!--页面自定义样式-->
+        <style>
+            /** style */
+        </style>
+    </th:block>
+    <!-- content -->
+    <th:block layout:fragment="content">
+        <el-row>
+            <el-autocomplete class="fn-w200" placeholder="表名" v-model="searchItem.tableName" clearable size="medium"
+                             :fetch-suggestions="search" @select="handleSelect">
+                <template slot-scope="tables">
+                    <div class="name">{{ tables.item.tableName }}</div>
+                </template>
+            </el-autocomplete>
+            <el-button class="fn-right fn-mr55" onClick="javascript :history.back(-1);" type="warning" plain
+                       size="medium">返回
+            </el-button>
+        </el-row>
+        <el-table stripe fixed class="fn-mt10" :data="tableList" highlight-current-row :height="height"
+                  :row-style="rowStyle" :header-row-style="headerRowStyle">
+            <el-table-column type="index" min-width="10%"></el-table-column>
+            <el-table-column prop="tableName" label="表名" align="left" min-width="20%" show-overflow-tooltip>
+            </el-table-column>
+            <el-table-column prop="comments" label="备注" align="left" min-width="15%" show-overflow-tooltip>
+            </el-table-column>
+            <el-table-column align="center" min-width="5%" label="操作" fixed="right">
+                <template slot-scope="scope">
+                    <el-button @click="showColumns(scope.row.tableName)" type="primary" size="small"
+                               plain>查看表详情
+                    </el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+
+        <!-- 分页begin -->
+        <el-pagination
+                @current-change="handleCurrentChange"
+                layout="total, prev, pager, next, jumper"
+                :total="pageCount"
+                style="float: right;margin-top: 1%; margin-right: 1%;">
+        </el-pagination>
+        <!-- 分页begin -->
+
+    </th:block>
+
+    <!-- js -->
+    <th:block layout:fragment="js">
+
+        <script th:inline="javascript">
+            var vm = new Vue({
+                el: '#app',
+                data: {
+                    /* 当前展示数据表 */
+                    tableList: [],
+                    /* 数据库表 */
+                    tables: [],
+                    /* loading 加载 */
+                    loading: false,
+                    /*table 行样式*/
+                    rowStyle: {
+                        height: "65px"
+                    },
+                    /*table 表头样式*/
+                    headerRowStyle: {
+                        height: "50px"
+                    },
+                    /* table 高度 */
+                    height: 700,
+                    /*分页页码*/
+                    pageCount: 0,
+                    /*每页显示个数*/
+                    pageSize: 10,
+                    /* 搜索内容 */
+                    searchItem: {
+                        tableName: null
+                    },
+                    /* 当前数据库配置ID */
+                    databaseId: null,
+                },
+                created: function () {
+                    var id = [[${databaseId}]];
+                    this.query(id);
+                    this.databaseId = id;
+                },
+                mounted: function () {
+
+                },
+                methods: {
+                    query: function (id) {
+                        /* 数据库表列表查询 */
+                        var _this = this;
+                        _this.tableList = [];
+                        _this.tables = [];
+                        _this.loading = true;
+                        axios.get(ctxPath + "/table/list?id=" + id).then(function (response) {
+                            if (response.data.code == 0) {
+                                var data = response.data.data;
+                                _this.tables = data;
+                                _this.tableList = data.slice(0, 10);
+                                _this.loading = false;
+                                _this.pageCount = data.length;
+                            } else {
+                                _this.loading = false;
+                                _this.pageCount = 0;
+                                _this.$message.error('获取数据表失败!');
+                            }
+                        });
+                    },
+                    handleCurrentChange: function (val) {
+                        var _this = this;
+                        var startIndex = (val - 1) * _this.pageSize;
+                        var endIndex = val * _this.pageSize;
+
+                        _this.tableList = _this.tables.slice(startIndex, endIndex);
+                    },
+                    search: function (queryString, callback) {
+                        var _this = this;
+                        _this.searchItem.tableName = queryString;
+                        var tables = _this.tables
+                        var results = queryString ? tables.filter(_this.tableNameFilter) : tables;
+                        /*调用 callback 返回建议列表的数据*/
+                        _this.tableList = results.slice(0, 10);
+                        _this.pageCount = results.length;
+                        callback(results);
+                    },
+                    tableNameFilter: function (table) {
+                        var _this = this;
+                        return table.tableName.toLowerCase().indexOf(_this.searchItem.tableName.toLowerCase()) >= 0;
+                    },
+                    handleSelect: function (item) {
+                        var _this = this;
+                        _this.tableList = [item];
+                    },
+                    showColumns: function (tableName) {
+                        var _this = this;
+                        location.href = ctxPath + "/column-page?databaseId=" + _this.databaseId + "&tableName=" + tableName;
+                    }
+                }
+            });
+        </script>
+
+
+    </th:block>
+</html>

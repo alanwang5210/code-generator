@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta charset="UTF-8" />
+        <title> 代码生成工具 </title>
+        <link rel="stylesheet" th:href="@{/css/element-ui.css }" />
+        <link rel="stylesheet" th:href="@{/css/util.css}" />
+    </head>
+    <body>
+        <template id="$$content_title" style="display: none;">
+            <th:block layout:fragment='title'>title</th:block>
+        </template>
+        <script>document.title = document.getElementById("$$content_title").innerHTML.trim() + " " + document.title;</script>
+
+        <!--content -->
+        <div id="app" class="ui-content fn-mt20" v-cloak v-loading="loading">
+            <th:block layout:fragment="content">
+                this is content!
+            </th:block>
+        </div>
+
+        <!-- js -->
+        <script th:src="@{/js/common/jquery-1.11.3.min.js}"></script>
+        <script th:src="@{/js/common/moment.js}"></script>
+        <script th:src="@{/js/common/axios.min.js}"></script>
+        <script th:src="@{/js/common/vue.js}"></script>
+        <script th:src="@{/js/common/element-ui.js}"></script>
+        <script th:src="@{/js/util/util-core.js}"></script>
+
+        <script th:inline="javascript">
+            var ctxPath = /*[[${#httpServletRequest.getContextPath()}]]*/ null
+        </script>
+
+        <th:block layout:fragment="js">
+            this is js!
+        </th:block>
+    </body>
+</html>

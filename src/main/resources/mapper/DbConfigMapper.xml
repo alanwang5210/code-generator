@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.alan.cloud.codegenerator.mapper.DbConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.alan.cloud.codegenerator.model.DbConfig">
+        <id column="id" property="id"/>
+
+        <result column="name" property="name"/>
+        <result column="url" property="url"/>
+        <result column="driver" property="driver"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="schema_name" property="schemaName"/>
+        <result column="db_type" property="dbType"/>
+    </resultMap>
+
+
+    <insert id="insert" parameterType="com.alan.cloud.codegenerator.model.DbConfig" useGeneratedKeys="true"
+            keyProperty="id" keyColumn="id">
+        insert into db_config
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="url != null">
+                url,
+            </if>
+            <if test="driver != null">
+                driver,
+            </if>
+            <if test="username != null">
+                username,
+            </if>
+            <if test="password != null">
+                password,
+            </if>
+            <if test="schemaName != null">
+                schema_name,
+            </if>
+            <if test="dbType != null">
+                db_type,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="url != null">
+                #{url},
+            </if>
+            <if test="driver != null">
+                #{driver},
+            </if>
+            <if test="username != null">
+                #{username},
+            </if>
+            <if test="password != null">
+                #{password},
+            </if>
+            <if test="schemaName != null">
+                #{schemaName},
+            </if>
+            <if test="dbType != null">
+                #{dbType},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.alan.cloud.codegenerator.model.DbConfig">
+        update db_config
+        <set>
+            <trim suffixOverrides=",">
+                <if test="id != null">
+                    id=#{id},
+                </if>
+                <if test="name != null">
+                    name=#{name},
+                </if>
+                <if test="url != null">
+                    url=#{url},
+                </if>
+                <if test="driver != null">
+                    driver=#{driver},
+                </if>
+                <if test="username != null">
+                    username=#{username},
+                </if>
+                <if test="password != null">
+                    password=#{password},
+                </if>
+                <if test="schemaName != null">
+                    schema_name=#{schemaName},
+                </if>
+                <if test="dbType != null">
+                    db_type=#{dbType},
+                </if>
+            </trim>
+        </set>
+        WHERE ID=#{id}
+    </update>
+
+    <delete id="delete" parameterType="com.alan.cloud.codegenerator.model.DbConfig">
+        delete
+        from db_config
+        where ID = #{id}
+    </delete>
+
+    <select id="query" resultMap="BaseResultMap"
+            parameterType="com.alan.cloud.codegenerator.model.DbConfig">
+        select * from db_config
+        <where>
+            <trim prefixOverrides="and">
+                <if test="dbConfig.id != null ">
+                    AND id=#{dbConfig.id}
+                </if>
+                <if test="dbConfig.name != null and dbConfig.name != ''">
+                    AND name=#{dbConfig.name}
+                </if>
+                <if test="dbConfig.url != null  and dbConfig.url != ''">
+                    AND url=#{dbConfig.url}
+                </if>
+                <if test="dbConfig.driver != null  and dbConfig.driver != ''">
+                    AND driver=#{dbConfig.driver}
+                </if>
+                <if test="dbConfig.username != null  and dbConfig.username != ''">
+                    AND username=#{dbConfig.username}
+                </if>
+                <if test="dbConfig.password != null  and dbConfig.password != ''">
+                    AND password=#{dbConfig.password}
+                </if>
+                <if test="dbConfig.schemaName != null  and dbConfig.schemaName != ''">
+                    AND schema_name=#{dbConfig.schemaName}
+                </if>
+                <if test="dbConfig.dbType != null  and dbConfig.dbType != ''">
+                    AND db_type=#{dbConfig.dbType}
+                </if>
+            </trim>
+        </where>
+    </select>
+</mapper>

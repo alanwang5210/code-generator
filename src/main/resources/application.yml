@@ -1,0 +1,50 @@
+server:
+  port: 8081
+  display-name: code-generator
+
+spring:
+  datasource:
+    dynamic:
+      primary: codeGenerator
+      datasource:
+        codeGenerator:
+          url: jdbc:mysql://116.62.7.189:3306/code_generator?characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false
+          username: root
+          password: Abc@1234
+          driver-class-name: com.mysql.jdbc.Driver
+      druid:
+        #初始化时建立物理连接的个数
+        initialSize: 1
+        #池中最大连接数
+        maxActive: 20
+        #最小空闲连接
+        minIdle: 1
+        #获取连接时最大等待时间，单位毫秒
+        maxWait: 60000
+  application:
+    name: mybatisplus-generator-web
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates
+    mode: HTML
+    suffix: .html
+
+## Mybatis 配置
+mybatis-plus:
+  check-config-location: true
+  #指定xml映射位置
+  mapper-locations: classpath:mapper/*.xml
+
+ignore:
+  urls:
+    - /css/**
+    - /js/**
+    - /img/**
+    - /ued/**
+    - /*.js
+    - /*.css
+    - /login
+    - /**/*.css
+    - /info
+    - /health
+    - /session

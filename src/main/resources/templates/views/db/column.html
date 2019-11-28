@@ -1,0 +1,237 @@
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.w3.org/1999/xhtml"
+      layout:decorate="~{/layouts/default}">
+    <th:block layout:fragment="title">
+        数据库列表
+    </th:block>
+    <!-- head -->
+    <th:block layout:fragment="head">
+        <!--页面自定义样式-->
+        <style>
+            /** style */
+        </style>
+    </th:block>
+    <!-- content -->
+    <th:block layout:fragment="content">
+        <el-row class="fn-clear fn-mb10">
+            <el-col class="fn-tal" :span="24">
+                <el-button onClick="javascript :history.back(-1);" type="warning" plain
+                           size="medium">返回
+                </el-button>
+                <el-button @click="download" type="primary" plain size="medium">生成代码
+                </el-button>
+            </el-col>
+        </el-row>
+
+        <el-form :model="columnForm" label-position="right" label-width="150px" size="medium">
+            <el-row>
+                <el-col :span="8" class="fn-pr20">
+                    <el-form-item class="fn-ml30" label="前缀:">
+                        <el-input v-model="columnForm.prefix"></el-input>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="8" class="fn-pr20">
+                    <el-form-item class="fn-ml30" label="包名:">
+                        <el-input v-model="columnForm.modelName"></el-input>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="8" class="fn-pr20">
+                    <el-form-item class="fn-ml30" label="author:">
+                        <el-input v-model="columnForm.author"></el-input>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="8" class="fn-pr20">
+                    <el-form-item class="fn-ml30" label="entityName:">
+                        <el-input v-model="columnForm.entityName"></el-input>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="8" class="fn-pr20">
+                    <el-form-item class="fn-ml30" label="mapperName:">
+                        <el-input v-model="columnForm.mapperName"></el-input>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="8" class="fn-pr20">
+                    <el-form-item class="fn-ml30" label="xmlName:">
+                        <el-input v-model="columnForm.xmlName"></el-input>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="8" class="fn-pr20">
+                    <el-form-item class="fn-ml30" label="serviceName:">
+                        <el-input v-model="columnForm.serviceName"></el-input>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="8" class="fn-pr20">
+                    <el-form-item class="fn-ml30" label="serviceImplName:">
+                        <el-input v-model="columnForm.serviceImplName"></el-input>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="8" class="fn-pr20">
+                    <el-form-item class="fn-ml30" label="controllerName:">
+                        <el-input v-model="columnForm.controllerName"></el-input>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="8" class="fn-pr20">
+                    <el-form-item class="fn-ml30" label="entityPackage:">
+                        <el-input v-model="columnForm.entityPackage"></el-input>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="8" class="fn-pr20">
+                    <el-form-item class="fn-ml30" label="servicePackage:">
+                        <el-input v-model="columnForm.servicePackage"></el-input>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="8" class="fn-pr20">
+                    <el-form-item class="fn-ml30" label="serviceImplPackage:">
+                        <el-input v-model="columnForm.serviceImplPackage"></el-input>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="8" class="fn-pr20">
+                    <el-form-item class="fn-ml30" label="mapperPackage:">
+                        <el-input v-model="columnForm.mapperPackage"></el-input>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="8" class="fn-pr20">
+                    <el-form-item class="fn-ml30" label="controllerPackage:">
+                        <el-input v-model="columnForm.controllerPackage"></el-input>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+        </el-form>
+
+        <el-table stripe="true" fixed class="fn-mt10" :data="columnList" highlight-current-row :height="height">
+            <el-table-column type="index" width="50"></el-table-column>
+            <el-table-column prop="colName" label="列名" align="center" min-width="5%" show-overflow-tooltip>
+            </el-table-column>
+            <el-table-column prop="colType" label="类型" align="center" min-width="15%" show-overflow-tooltip>
+            </el-table-column>
+            <el-table-column prop="comments" label="注释" align="center" min-width="15%" show-overflow-tooltip>
+            </el-table-column>
+            <el-table-column prop="extra" label="主键" align="center" min-width="15%" show-overflow-tooltip>
+            </el-table-column>
+            <el-table-column prop="nullable" label="是否允许为Null" align="center" min-width="15%" show-overflow-tooltip>
+            </el-table-column>
+            <el-table-column prop="defaultValue" label="默认值" align="center" min-width="15%" show-overflow-tooltip>
+            </el-table-column>
+        </el-table>
+    </th:block>
+
+    <!-- js -->
+    <th:block layout:fragment="js">
+        <!--页面js-->
+        <script th:inline="javascript">
+            var vm = new Vue({
+                el: '#app',
+                data: {
+                    /* loading 加载 */
+                    loading: false,
+                    columnList: [],
+                    searchItem: {
+                        id: null,
+                        tableName: null
+                    },
+                    columnForm: {
+                        id: '',
+                        tableName: '',
+                        comments: '',
+                        remarks: [],
+                        dbId: null,
+                        prefix: null,
+                        modelName: 'com.xx',
+                        author: 'Auto-Generator',
+                        entityName: '%s',
+                        mapperName: '%sMapper',
+                        xmlName: '%sMapper',
+                        serviceName: '%sService',
+                        serviceImplName: '%sServiceImpl',
+                        controllerName: '%sController',
+                        entityPackage: 'domain',
+                        servicePackage: 'service',
+                        serviceImplPackage: 'service.impl',
+                        mapperPackage: 'mapper',
+                        controllerPackage: 'controller',
+                    },
+                    /* loading 加载 */
+                    loading: false,
+                    /* table 高度 */
+                    height: 500,
+                    /*分页页码*/
+                    pageCount: 0,
+                    /*每页显示个数*/
+                    pageSize: 10,
+                },
+                created: function () {
+                    var id = $UF.getUrlParam("databaseId");
+                    var tableName = $UF.getUrlParam("tableName");
+                    this.columnForm.dbId = id;
+                    this.columnForm.tableName = tableName;
+
+                    this.query(id, tableName);
+                },
+                mounted: function () {
+
+                },
+                methods: {
+                    query: function (id, tableName) {
+                        var _this = this;
+                        //请求参数
+                        var data = _this.searchItem;
+                        axios.get(ctxPath + "/column/list",
+                            {
+                                params: {
+                                    id: id,
+                                    tableName: tableName
+                                }
+                            }).then(function (response) {
+                            if (response.data.code == 0) {
+                                var data = response.data.data;
+                                _this.columnList = data.listColumn;
+                                _this.loading = false;
+                                _this.pageCount = data.length;
+                            } else {
+                                _this.loading = false;
+                                _this.pageCount = 0;
+                                _this.$message.error('获取数据表失败!');
+                            }
+                        });
+                    },
+                    download: function () {
+                        var _this = this;
+                        var data = this.columnForm;
+                        axios.post(ctxPath + '/code/generate', data, {responseType: 'blob'}).then(function (response) {
+                            if (response.status == 200) {
+                                var data = response.data;
+
+                                var blob = new Blob([data]);
+                                var fileName = "src.zip";
+                                if ("download" in document.createElement("a")) {
+                                    // 非IE下载
+                                    var virtualLink = document.createElement("a");
+                                    virtualLink.download = fileName;
+                                    virtualLink.style.display = "none";
+                                    virtualLink.href = URL.createObjectURL(blob);
+                                    document.body.appendChild(virtualLink);
+                                    virtualLink.click();
+                                    /* 释放URL 对象*/
+                                    URL.revokeObjectURL(elink.href);
+                                    document.body.removeChild(virtualLink);
+                                } else {
+                                    // IE10+下载
+                                    navigator.msSaveBlob(blob, fileName);
+                                }
+                            } else {
+
+                            }
+                        });
+                    },
+                }
+            });
+        </script>
+    </th:block>
+</html>

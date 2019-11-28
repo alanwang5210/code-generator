@@ -1,0 +1,375 @@
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.w3.org/1999/xhtml"
+      layout:decorate="~{/layouts/default}">
+    <th:block layout:fragment="title">
+        数据库列表
+    </th:block>
+    <!-- content -->
+    <th:block layout:fragment="content">
+        <!--数据区域-->
+        <el-row class="fn-clear">
+            <el-col class="fn-tal">
+                <el-input class="fn-w200" placeholder="数据库配置名称" v-model="searchItem.name" clearable
+                          size="medium"></el-input>
+                <el-select class="fn-w200" v-model="searchItem.driver" size="medium" clearable placeholder="请选择驱动类型">
+                    <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
+                    </el-option>
+                </el-select>
+                <el-input class="fn-w200" placeholder="数据库名称" v-model="searchItem.schemaName" clearable size="medium">
+                </el-input>
+                <el-button @click="searchDbConfig" icon="el-icon-search" type="primary" plain size="medium"></el-button>
+                <el-button class="fn-right fn-mr55" @click="openDialog('new')" icon="el-icon-circle-plus" type="primary"
+                           plain size="medium">添加
+                </el-button>
+            </el-col>
+        </el-row>
+
+        <el-table fixed class="fn-mt10" style="" :data="databaseList" highlight-current-row :height="height"
+                  :row-style="rowStyle" :header-row-style="headerRowStyle">
+            <el-table-column prop="name" label="名称（唯一）" align="center" min-width="10%" show-overflow-tooltip>
+            </el-table-column>
+            <el-table-column prop="url" label="URL" align="center" min-width="15%" show-overflow-tooltip>
+            </el-table-column>
+            <el-table-column prop="driver" label="driver" align="center" min-width="15%" show-overflow-tooltip>
+            </el-table-column>
+            <el-table-column prop="username" label="用户名" align="center" min-width="10%" show-overflow-tooltip>
+            </el-table-column>
+            <el-table-column prop="password" label="密码" align="center" min-width="10%" show-overflow-tooltip>
+            </el-table-column>
+            <el-table-column prop="schemaName" label="schema" align="center" min-width="15%" show-overflow-tooltip>
+            </el-table-column>
+            <el-table-column align="center" label="操作" min-width="10%">
+                <template slot-scope="scope">
+                    <el-button @click="deleteById(scope.row)" type="danger" icon="el-icon-delete" circle size="small"
+                               plain></el-button>
+                    <el-button @click="openDialog('edit',scope.row.id)" type="warning" icon="el-icon-edit" circle
+                               size="small" plain></el-button>
+                </template>
+            </el-table-column>
+            <el-table-column align="center" min-width="10%" label="操作">
+                <template slot-scope="scope">
+                    <el-button @click="showTables(scope.row.id)" type="primary" size="small" plain>Tables</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+
+        <!-- 分页begin -->
+        <el-pagination
+                @current-change="handleCurrentChange"
+                layout="total, prev, pager, next, jumper"
+                :total="pageCount"
+                style="float: right;margin-top: 1%; margin-right: 1%;">
+        </el-pagination>
+        <!-- 分页begin -->
+
+        <!-- 新建/编辑弹出框start -->
+        <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible" width="55%">
+            <el-form label-width="150px" :model="form" :rules="rules" ref="form" label-position="right">
+                <el-row>
+                    <el-col :span="24" class="fn-pr20">
+                        <el-form-item class="fn-ml30" label="名称（唯一）：" prop="name">
+                            <el-input v-model="form.name"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="24" class="fn-pr20">
+                        <el-form-item class="fn-ml30" label="URL：" prop="url">
+                            <el-input v-model="form.url"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="24" class="fn-pr20">
+                        <el-form-item class="fn-ml30" label="driver：" prop="driver">
+                            <el-select style="width:100%;" v-model="form.driver" clearable placeholder="请选择">
+                                <el-option
+                                        v-for="item in options"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="24" class="fn-pr20">
+                        <el-form-item class="fn-ml30" label="用户名：" prop="username">
+                            <el-input v-model="form.username"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="24" class="fn-pr20">
+                        <el-form-item class="fn-ml30" label="密码：" prop="password">
+                            <el-input v-model="form.password"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="24" class="fn-pr20">
+                        <el-form-item class="fn-ml30" label="schema：" prop="schemaName">
+                            <el-input v-model="form.schemaName"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+            </el-form>
+
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="dialogFormVisible = false">取 消</el-button>
+                <el-button type="danger" @click="validateConn">测试</el-button>
+                <el-button type="primary" @click="submitForm('form')">确 定</el-button>
+            </div>
+        </el-dialog>
+        <!-- 新建/编辑弹出框end   -->
+    </th:block>
+
+    <!-- js -->
+    <th:block layout:fragment="js">
+
+        <script th:inline="javascript">
+
+            var id = "${db}"
+
+            var vm = new Vue({
+                el: '#app',
+                data: {
+                    /* table 高度 */
+                    height: 700,
+                    /*table 行样式*/
+                    rowStyle: {
+                        height: "65px"
+                    },
+                    /*table 表头样式*/
+                    headerRowStyle: {
+                        height: "50px"
+                    },
+                    /*分页页码*/
+                    pageCount: 0,
+                    /*每页显示个数*/
+                    pageSize: 10,
+                    /* 数据库连接列表 */
+                    databaseList: [],
+                    /* 弹出框标题 */
+                    dialogTitle: "",
+                    /* 弹出框是否显示 */
+                    dialogFormVisible: false,
+                    /* loading 加载 */
+                    loading: true,
+                    /* 搜索内容 */
+                    searchItem: {
+                        name: null,
+                        driver: null,
+                        schemaName: null,
+                        size: 10,
+                        current: null
+                    },
+                    /* 弹出框form 表单内容 */
+                    form: {
+                        id: null,
+                        name: null,
+                        url: "",
+                        driver: "",
+                        username: "",
+                        password: "",
+                        schemaName: null,
+                        catalog: null,
+                        dbType: null
+                    },
+                    /* 数据库driver 列表 */
+                    options: [{
+                        value: 'com.mysql.jdbc.Driver',
+                        label: 'Mysql'
+                    }, {
+                        value: 'oracle.jdbc.driver.OracleDriver',
+                        label: 'Oracle'
+                    }],
+                    /* form 表单验证规则 */
+                    rules: {
+                        name: [
+                            {required: true, message: '请输入数据库名称', trigger: 'blur'}
+                        ],
+                        url: [
+                            {required: true, message: '请输入数据库url', trigger: 'blur'}
+                        ],
+                        driver: [
+                            {required: true, message: '请输入driver', trigger: 'blur'}
+                        ],
+                        username: [
+                            {required: true, message: '请输入用户名', trigger: 'blur'}
+                        ],
+                        password: [
+                            {required: true, message: '请输入密码', trigger: 'blur'}
+                        ],
+                        schemaName: [
+                            {required: true, message: '请输入schema', trigger: 'blur'}
+                        ]
+                    }
+                },
+                created: function () {
+                    this.queryDBList();
+                    var height = window.innerHeight;
+                },
+                mounted: function () {
+                },
+                methods: {
+                    queryDBList: function (queryItem) {
+
+                        if (queryItem == null) {
+                            var queryItem = {};
+                            queryItem.current = 1;
+                            queryItem.size = 10;
+                        }
+
+                        /* 数据库连接列表查询 */
+                        var _this = this;
+                        /* 清空数据 */
+                        _this.databaseList = [];
+                        _this.loading = true;
+                        axios.post(ctxPath + "/database/list", queryItem).then(function (response) {
+                            if (response.data.code == 0) {
+                                var data = response.data.data;
+                                _this.databaseList = data.records;
+                                _this.loading = false;
+                                _this.pageCount = data.total;
+                            } else {
+                                _this.loading = false;
+                                _this.pageCount = 0;
+                                _this.$message.error('加载数据源失败!');
+                            }
+                        });
+                    },
+                    openDialog: function (type, id) {
+                        var _this = this;
+                        if (type === 'new') {
+                            _this.dialogFormVisible = true;
+                            _this.dialogTitle = "新增";
+                            _this.form = {};
+                        } else if (type === 'edit') {
+                            _this.dialogFormVisible = true;
+                            _this.dialogTitle = "编辑";
+                            var id = id;
+                            _this.getById(id);
+                        }
+                    },
+                    getById: function (id) {
+                        var _this = this;
+
+                        axios.get(ctxPath + "/database/getByDbId?id=" + id
+                        ).then(function (response) {
+
+                            if (response.data.code === 0) {
+                                _this.form = response.data.data;
+                            } else {
+                                _this.$message.error(response.data.message);
+                            }
+                        });
+                    },
+                    submitForm: function (formName) {
+                        var _this = this;
+                        _this.$refs[formName].validate(function (valid) {
+                            if (valid) {
+                                _this.$confirm('确定操作吗?', '提示', {
+                                    confirmButtonText: '确定',
+                                    cancelButtonText: '取消',
+                                    type: 'warning'
+                                }).then(function () {
+                                    if (_this.dialogTitle === "新增") {
+                                        _this.save();
+                                    } else if (_this.dialogTitle === "编辑") {
+                                        _this.update();
+                                    }
+                                }).catch(function () {
+                                });
+                            }
+                        });
+                    },
+                    save: function () {
+                        var _this = this;
+
+                        axios.post(ctxPath + "/database/save", _this.form
+                        ).then(function (response) {
+                            if (response.data.code === 0) {
+                                _this.$message.success('添加数据源成功!');
+                                _this.dialogFormVisible = false;
+                                _this.queryDBList();
+                            } else {
+                                _this.$message.error(response.data.message);
+                            }
+                        });
+                    },
+                    update: function () {
+                        var _this = this;
+
+                        axios.post(ctxPath + "/database/edit", _this.form
+                        ).then(function (response) {
+                            if (response.data.code === 0) {
+                                _this.$message.success('更新数据源成功!');
+                                _this.dialogFormVisible = false;
+                                _this.queryDBList();
+                            } else {
+                                _this.$message.error(response.data.message);
+                            }
+                        });
+                    },
+                    deleteById: function (row) {
+                        var _this = this;
+                        _this.$confirm('确定删除数据库连接?', '提示', {
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                            type: 'warning'
+                        }).then(function () {
+                            var data = {};
+                            data.id = row.id;
+
+                            axios.post(ctxPath + "/database/delete", data
+                            ).then(function (response) {
+                                if (response.data.code === 0) {
+                                    _this.$message.success('删除数据源成功!');
+                                    _this.queryDBList();
+                                } else {
+                                    _this.$message.error(response.data.message);
+                                }
+                            });
+                        }).catch(function () {
+                        });
+                    },
+                    searchDbConfig: function () {
+                        var _this = this;
+                        _this.queryDBList(_this.searchItem);
+                    },
+                    validateConn: function () {
+                        var _this = this;
+
+                        axios.post(ctxPath + "/database/validateConnection", _this.form
+                        ).then(function (response) {
+                            if (response.data.code === 0) {
+                                _this.$message.success(response.data.data);
+                            } else {
+                                _this.$message.error(response.data.message);
+                            }
+                        });
+                    },
+                    handleCurrentChange: function (val) {
+                        var _this = this;
+                        _this.searchItem.current = val;
+                        _this.queryDBList(_this.searchItem);
+                    },
+                    showTables: function (id) {
+                        var _this = this;
+                        _this.form.id = id;
+
+                        axios.post(ctxPath + "/database/validateConnection", _this.form
+                        ).then(function (response) {
+                            if (response.data.code === 0) {
+                                window.parent.document.getElementById("content").src = ctxPath + "/table-page/?databaseId=" + id;
+                            } else {
+                                _this.$message.error(response.data.message);
+                            }
+                        });
+                    }
+                }
+            });
+        </script>
+    </th:block>
+</html>
