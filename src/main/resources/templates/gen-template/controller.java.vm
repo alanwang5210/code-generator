@@ -1,15 +1,17 @@
 package ${package.Controller};
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 import ${package.Service}.${table.serviceName};
 import ${package.Entity}.${entity};
+#if(${swagger2})
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+#end
 import java.util.*;
 
 #if(${cfg.restControllerStyle})
@@ -19,11 +21,8 @@ import org.springframework.stereotype.Controller;
 #if(${superControllerClassPackage})
 import ${superControllerClassPackage};
 #end
-
 /**
- * <p>
  * $!{table.comment} 前端控制器
- * </p>
  *
  * @author ${author}
  * @since ${date}
@@ -33,7 +32,10 @@ import ${superControllerClassPackage};
 #else
 @Controller
 #end
-@RequestMapping("#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end")
+@RequestMapping("/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end")
+#if(${swagger2})
+@Api(tags = "$!{table.comment}")
+#end
 #if(${kotlin})
 class ${table.controllerName}#if(${superControllerClass}) : ${superControllerClass}()#end
 
@@ -44,56 +46,90 @@ public class ${table.controllerName} extends ${superControllerClass} {
 public class ${table.controllerName} {
 #end
 
-    #set($lowerCaseServiceName = $table.serviceName.substring(0,1).toLowerCase() + $table.serviceName.substring(1,$table.serviceName.length()))
-
+#set($lowerCaseServiceName = $table.serviceName.substring(0,1).toLowerCase() + $table.serviceName.substring(1,$table.serviceName.length()))
     @Autowired
     private ${table.serviceName} ${lowerCaseServiceName};
 
-    #set($lowrEntity = $table.entityName.substring(0,1).toLowerCase() + $table.entityName.substring(1,$table.entityName.length()))
-
+#set($lowrEntity = $table.entityName.substring(0,1).toLowerCase() + $table.entityName.substring(1,$table.entityName.length()))
     /**
-    * 新增
-    */
-    @PostMapping
-    public boolean save(${table.entityName} ${lowrEntity}){
+     * 新增
+     */
+    @PostMapping(value = "/save")
+#if(${swagger2})
+    @ApiOperation(value = "新增")
+#end
+    public boolean save(${table.entityName} ${lowrEntity}) {
         return ${lowerCaseServiceName}.save(${lowrEntity});
     }
 
-    /**
-    * 通过id删除
-    */
-    @DeleteMapping
-    public boolean delete(${table.entityName} ${lowrEntity}){
-        return ${lowerCaseServiceName}.removeById(${lowrEntity}.getId());
+    @GetMapping("/get")
+#if(${swagger2})
+    @ApiOperation(value = "查询详情")
+#end
+    public ${table.entityName} getById(#if(${swagger2})@ApiParam(value = "ID") @RequestParam(value = "id") String id#else String id#end) {
+        return ${lowerCaseServiceName}.getById(id);
     }
 
     /**
-    * 修改
-    */
-    @PutMapping
-    public boolean updateById(${table.entityName} ${lowrEntity}){
+     * 通过id删除
+     */
+    @PostMapping(value = "/delete")
+#if(${swagger2})
+    @ApiOperation(value = "删除")
+#end
+    public boolean delete(#if(${swagger2})@ApiParam(value = "ID") @RequestParam(value = "id") String id#else String id#end) {
+        return ${lowerCaseServiceName}.removeById(id);
+    }
+
+    /**
+     * 修改
+     */
+    @PostMapping("/update")
+#if(${swagger2})
+    @ApiOperation(value = "更新")
+#end
+    public boolean updateById(${table.entityName} ${lowrEntity}) {
         return ${lowerCaseServiceName}.updateById(${lowrEntity});
     }
 
     /**
-    * 查询列表
-    */
-    @GetMapping("/list")
-    public List<${table.entityName}> list(${table.entityName} ${lowrEntity} ){
+     * 查询列表
+     */
+    @PostMapping("/list")
+#if(${swagger2})
+    @ApiOperation(value = "列表查询")
+#end
+    public List<${table.entityName}> list(${table.entityName} ${lowrEntity}) {
         QueryWrapper<${table.entityName}> wp = new QueryWrapper<>();
-        //todo init wp
+        wp.setEntity(${lowrEntity});
         return ${lowerCaseServiceName}.list(wp);
     }
 
     /**
-    * 分页查询
-    */
-    @GetMapping("/page")
-    public PageInfo<${table.entityName}> page(int pageNum, int pageSize, ${table.entityName} ${lowrEntity}){
-        // PageHelper插件分页
+     * 分页查询
+     */
+    @PostMapping("/page")
+#if(${swagger2})
+    @ApiOperation(value = "分页查询")
+#end
+    public PageInfo<${table.entityName}> page(
+#if(${swagger2})
+            @ApiParam(value = "页数") Integer pageNum,
+            @ApiParam(value = "每页行数") Integer pageSize,
+#else
+            Integer pageNum, Integer pageSize,
+#end
+            ${table.entityName} ${lowrEntity}) {
+        if (Objects.isNull(pageNum)) {
+            pageNum = 1;
+        }
+
+        if (Objects.isNull(pageSize)) {
+            pageSize = 10;
+        }
         PageHelper.startPage(pageNum, pageSize);
         QueryWrapper<${table.entityName}> wp = new QueryWrapper<>();
-        //todo init wp
+        wp.setEntity(${lowrEntity});
         PageInfo<${table.entityName}> pageResult = new PageInfo<>(${lowerCaseServiceName}.list(wp));
         return pageResult;
     }

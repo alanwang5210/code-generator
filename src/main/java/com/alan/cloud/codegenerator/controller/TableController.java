@@ -1,6 +1,6 @@
 package com.alan.cloud.codegenerator.controller;
 
-import com.alan.cloud.codegenerator.common.entity.HttpResult;
+import com.alan.cloud.codegenerator.common.commonresponse.HttpResult;
 import com.alan.cloud.codegenerator.model.DbConfig;
 import com.alan.cloud.codegenerator.model.TableInfo;
 import com.alan.cloud.codegenerator.service.CodeService;

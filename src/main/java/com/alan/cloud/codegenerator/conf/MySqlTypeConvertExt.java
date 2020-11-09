@@ -6,11 +6,8 @@ import com.baomidou.mybatisplus.generator.config.rules.DbColumnType;
 import com.baomidou.mybatisplus.generator.config.rules.IColumnType;
 
 /**
- * @author jack-cooper
- * @version 1.0.0
- * @ClassName MySqlTypeConvert.java
- * @Description OffesetDateTime
- * @createTime @2019-11-24 20:20:37
+ * @wh
+ * @2019-11-24 20:20:37
  */
 public class MySqlTypeConvertExt implements ITypeConvert {
 
@@ -59,7 +56,7 @@ public class MySqlTypeConvertExt implements ITypeConvert {
                             return DbColumnType.TIMESTAMP;
                     }
                 case TIME_PACK:
-                    return DbColumnTypeExt.OFFSET_DATE_TIME;
+                    return DbColumnType.LOCAL_DATE_TIME;
             }
         }
         return DbColumnType.STRING;

@@ -1,6 +1,7 @@
 package com.alan.cloud.codegenerator.controller;
 
 import com.alan.cloud.codegenerator.model.SysUser;
+import com.alan.cloud.codegenerator.utils.QRCodeUtil;
 import com.alibaba.fastjson.JSON;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -9,7 +10,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.awt.image.BufferedImage;
+import java.io.OutputStream;
 
 /**
  *
@@ -49,37 +54,35 @@ public class LoginController {
         return true;
     }
 
-    /**
-     * 显示数据库列表
-     */
-    @RequestMapping(value = "/database-page")
-    public String databaseList() {
-        return "/views/db/database";
-    }
-
-    /**
-     * 显示数据表
-     */
-    @GetMapping("/table-page")
-    public String toTableList(Model model, String databaseId) {
-        model.addAttribute("databaseId", databaseId);
-        return "/views/db/table";
-    }
-
-    /**
-     * 显示字段列表
-     */
-    @GetMapping("/column-page")
-    public String toColumnList(Model model, String tableName, String databaseId) {
-        model.addAttribute("tableName", tableName);
-        model.addAttribute("databaseId", databaseId);
-        return "/views/db/column";
-    }
-
     @ResponseBody
     @GetMapping("/session")
     public String login12(HttpSession session) {
         return JSON.toJSONString(session);
+    }
+
+    /**
+     * 二维码
+     *
+     * @param request
+     * @param response
+     */
+    @RequestMapping("/qrcode")
+    public void qrcode(HttpServletRequest request, HttpServletResponse response) {
+        StringBuffer url = request.getRequestURL();
+        // 域名
+        String tempContextUrl = url.delete(url.length() - request.getRequestURI().length(), url.length()).append("/").toString();
+
+        // 再加上请求链接
+        String requestUrl = tempContextUrl + "/index";
+        try {
+            OutputStream os = response.getOutputStream();
+            BufferedImage bufferedImage = QRCodeUtil.encode(requestUrl, "D:\\testerweima.png", os, true);
+
+            os.flush();
+            os.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

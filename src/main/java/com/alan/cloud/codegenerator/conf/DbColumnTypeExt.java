@@ -3,7 +3,7 @@ package com.alan.cloud.codegenerator.conf;
 import com.baomidou.mybatisplus.generator.config.rules.IColumnType;
 
 /**
- * @王合
+ * @wh
  * @2019-11-24 20:20:37
  */
 public enum DbColumnTypeExt implements IColumnType {

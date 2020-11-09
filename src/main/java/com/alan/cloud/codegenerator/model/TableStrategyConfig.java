@@ -19,10 +19,10 @@ public class TableStrategyConfig implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "主键ID")
+    @ApiModelProperty(value = "主键ID", example = "1")
     private Long id;
 
-    @ApiModelProperty(value = "数据库id")
+    @ApiModelProperty(value = "数据库id", example = "1")
     private Long dbId;
 
     @ApiModelProperty(value = "数据库表名")
@@ -33,6 +33,9 @@ public class TableStrategyConfig implements Serializable {
 
     @ApiModelProperty(value = "model 名称")
     private String modelName;
+
+    @ApiModelProperty(value = "model 父包名")
+    private String modelParentName;
 
     @ApiModelProperty(value = "作者")
     private String author;

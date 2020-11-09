@@ -19,8 +19,11 @@
                     <div class="name">{{ tables.item.tableName }}</div>
                 </template>
             </el-autocomplete>
-            <el-button class="fn-right fn-mr55" onClick="javascript :history.back(-1);" type="warning" plain
+            <el-button class="fn-right fn-mr55" onClick="javascript :history.back(-1);" plain
                        size="medium">返回
+            </el-button>
+            <el-button class="fn-right fn-mr55" @click="exportDatabaseInfo()" type="warning" plain
+                       size="medium">导出
             </el-button>
         </el-row>
         <el-table stripe fixed class="fn-mt10" :data="tableList" highlight-current-row :height="height"
@@ -100,7 +103,7 @@
                         _this.tables = [];
                         _this.loading = true;
                         axios.get(ctxPath + "/table/list?id=" + id).then(function (response) {
-                            if (response.data.code == 0) {
+                            if (response.data.status) {
                                 var data = response.data.data;
                                 _this.tables = data;
                                 _this.tableList = data.slice(0, 10);
@@ -110,6 +113,35 @@
                                 _this.loading = false;
                                 _this.pageCount = 0;
                                 _this.$message.error('获取数据表失败!');
+                            }
+                        });
+                    },
+                    exportDatabaseInfo: function () {
+                        var _this = this;
+                        var data = {id: this.databaseId};
+                        axios.post(ctxPath + '/database/exportDatabaseInfo', Qs.stringify(data), {responseType: 'blob'}).then(function (response) {
+                            if (response.status == 200) {
+                                var data = response.data;
+
+                                var blob = new Blob([data]);
+                                var fileName = "src.xlsx";
+                                if ("download" in document.createElement("a")) {
+                                    // 非IE下载
+                                    var virtualLink = document.createElement("a");
+                                    virtualLink.download = fileName;
+                                    virtualLink.style.display = "none";
+                                    virtualLink.href = URL.createObjectURL(blob);
+                                    document.body.appendChild(virtualLink);
+                                    virtualLink.click();
+                                    /* 释放URL 对象*/
+                                    URL.revokeObjectURL(elink.href);
+                                    document.body.removeChild(virtualLink);
+                                } else {
+                                    // IE10+下载
+                                    navigator.msSaveBlob(blob, fileName);
+                                }
+                            } else {
+
                             }
                         });
                     },

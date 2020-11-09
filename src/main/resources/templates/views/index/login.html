@@ -2,10 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
         <title>代码生成工具</title>
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-        <meta name="renderer" content="webkit" />
-        <meta name="viewport" content="width=1200" />
-        <link rel="icon" th:href="@{/img/favicon.ico}" type="image/x-icon" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+        <meta name="renderer" content="webkit"/>
+        <meta name="viewport" content="width=1200"/>
+        <link rel="icon" th:href="@{/img/favicon.ico}" type="image/x-icon"/>
         <link rel="stylesheet" th:href="@{/css/element-ui.css}" type="text/css">
         <style type="text/css">
             #app {
@@ -53,19 +53,19 @@
 
         <script th:inline="javascript">
 
-            var ctxPath = /*[[${#httpServletRequest.getContextPath()}]]*/ null;
-            var data = {
+            let ctxPath = /*[[${#httpServletRequest.getContextPath()}]]*/ null;
+            let data = {
                 form: {
                     username: 'admin',
                     password: 'admin'
                 }
             };
-            var vm = new Vue({
+            let vm = new Vue({
                 el: '#app',
                 data: data,
                 methods: {
                     onSubmit: function () {
-                        var _this = this;
+                        let _this = this;
                         var data = {
                             username: _this.form.username,
                             password: _this.form.password

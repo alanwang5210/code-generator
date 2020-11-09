@@ -25,6 +25,9 @@ public class TableInfo implements Serializable {
 
     @ApiModelProperty(value = "表字段")
     private List<ColumnInfo> listColumn;
-    
+
+    @ApiModelProperty(value = "建表语句")
+    private String createTableSql;
+
 }
 

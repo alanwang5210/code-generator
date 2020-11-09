@@ -8,11 +8,12 @@
         <encoder>
             <pattern>%d{MM-dd HH:mm:ss.SSS} %-5level [%logger{50}] - %msg%n</pattern>
         </encoder>
+
     </appender>
 
     <!-- Log file debug output -->
     <appender name="debug" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${log.path}/debugTest.log</file>
+        <file>${log.path}/debug.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${log.path}/%d{yyyy-MM}/debug.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
             <maxFileSize>50MB</maxFileSize>
@@ -45,4 +46,6 @@
         <appender-ref ref="debug"/>
         <appender-ref ref="error"/>
     </root>
+
+
 </configuration>

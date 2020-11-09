@@ -14,21 +14,12 @@ import lombok.Data;
 @Data
 public class TableQO {
 
-    /**
-     * 列名
-     */
-    @ApiModelProperty(value = "数据库ID")
+    @ApiModelProperty(value = "数据库ID", example = "1")
     private Long id;
 
-    /*
-     * 当前页码
-     */
     @ApiModelProperty(value = "当前页码", example = "1")
     private Integer current;
 
-    /*
-     * 每页记录数
-     */
     @ApiModelProperty(value = "每页记录数", example = "20")
     private Integer size;
 }

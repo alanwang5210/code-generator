@@ -1,5 +1,6 @@
 package com.alan.cloud.codegenerator.service;
 
+import com.alan.cloud.codegenerator.model.DatabaseInfo;
 import com.alan.cloud.codegenerator.model.DbConfig;
 import com.alan.cloud.codegenerator.model.TableInfo;
 import org.springframework.stereotype.Service;
@@ -31,7 +32,7 @@ public interface CodeService {
      * @author 王合
      * @exception/throws
      */
-    TableInfo getAllColumns(String tableName, DbConfig dbConfig);
+    TableInfo getFullTableInfo(String tableName, DbConfig dbConfig);
 
     /**
      * 验证数据库连接
@@ -41,5 +42,15 @@ public interface CodeService {
      * @author 王合
      * @exception/throws
      */
-    Boolean validateConnection(DbConfig dbConfig);
+    String validateConnection(DbConfig dbConfig);
+
+    /**
+     * 获取数据库信息
+     *
+     * @param dbConfig 数据库配置信息
+     * @return DatabaseInfo 数据库信息
+     * @author 王合
+     * @exception/throws
+     */
+    DatabaseInfo getDatabaseInfo(DbConfig dbConfig);
 }

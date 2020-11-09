@@ -23,7 +23,7 @@ public class DbConfig implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "主键ID")
+    @ApiModelProperty(value = "主键ID", example = "1")
     private Long id;
 
     @ApiModelProperty(value = "名称")

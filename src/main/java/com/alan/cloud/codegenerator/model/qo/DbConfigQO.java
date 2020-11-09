@@ -12,7 +12,7 @@ import lombok.Data;
 @Data
 public class DbConfigQO {
 
-    @ApiModelProperty(value = "主键ID")
+    @ApiModelProperty(value = "主键ID", example = "1")
     private Long id;
 
     @ApiModelProperty(value = "名称")
@@ -37,8 +37,8 @@ public class DbConfigQO {
     private String dbType;
 
     @ApiModelProperty(value = "当前页码", example = "1")
-    private Long current;
+    private Integer current;
 
     @ApiModelProperty(value = "每页记录数", example = "20")
-    private Long size;
+    private Integer size;
 }

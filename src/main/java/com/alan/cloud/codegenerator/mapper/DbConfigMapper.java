@@ -24,6 +24,7 @@ public interface DbConfigMapper extends BaseMapper<DbConfig> {
      * @author 王合
      * @exception/throws
      */
+    @Override
     int insert(DbConfig entity);
 
     /**

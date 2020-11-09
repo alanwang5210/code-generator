@@ -1,5 +1,6 @@
 package com.alan.cloud.codegenerator.controller;
 
+import com.alan.cloud.codegenerator.common.constant.CommonConstant;
 import com.alan.cloud.codegenerator.conf.MySqlTypeConvertExt;
 import com.alan.cloud.codegenerator.model.DbConfig;
 import com.alan.cloud.codegenerator.model.TableStrategyConfig;
@@ -13,20 +14,25 @@ import com.baomidou.mybatisplus.generator.config.*;
 import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tools.zip.ZipOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-
+/**
+ * @wh
+ * @2019-11-24 20:20:37
+ */
 @Api(tags = "code generator")
 @RestController
 @RequestMapping("code")
@@ -53,18 +59,22 @@ public class CodeController {
 
         Long id = tableStrategyConfig.getDbId();
         DbConfig dbConfig = dbConfigService.getById(id);
+        String systemName = CommonConstant.System.APP_NAME_EN;
 
         AutoGenerator mpg = new AutoGenerator();
         /*全局配置*/
         GlobalConfig gc = new GlobalConfig();
         /*生成文件的输出目录【默认 D 盘根目录】*/
-        gc.setOutputDir(request.getSession().getServletContext().getRealPath("/") + "/WEB-INF/upload/" + request.getSession().getId());
+
+        String tempDir = System.getProperty("java.io.tmpdir");
+        String dir = tempDir + systemName + "\\" + request.getRequestedSessionId();
+        gc.setOutputDir(dir);
         /*开启 swagger2 模式*/
         gc.setSwagger2(true);
         /*是否覆盖已有文件 */
         gc.setFileOverride(true);
         /*开启 ActiveRecord 模式*/
-        gc.setActiveRecord(true);
+        gc.setActiveRecord(false);
         /*是否在xml中添加二级缓存配置*/
         gc.setEnableCache(false);
         /*开启 BaseResultMap*/
@@ -73,6 +83,9 @@ public class CodeController {
         gc.setBaseColumnList(true);
         /*开发人员*/
         gc.setAuthor(tableStrategyConfig.getAuthor());
+        /*是否打开输出目录*/
+        gc.setOpen(false);
+
         /**
          * 各层文件名称方式，例如： %sAction 生成 UserAction
          * %s 为占位符
@@ -97,14 +110,14 @@ public class CodeController {
 
         /* 包配置*/
         PackageConfig pc = new PackageConfig();
-        /*pc.setParent("com");*/
+        pc.setParent(tableStrategyConfig.getModelParentName());
         pc.setModuleName(tableStrategyConfig.getModelName());
         pc.setEntity(tableStrategyConfig.getEntityPackage());
         pc.setService(tableStrategyConfig.getServicePackage());
         pc.setServiceImpl(tableStrategyConfig.getServiceImplPackage());
         pc.setMapper(tableStrategyConfig.getMapperPackage());
         pc.setController(tableStrategyConfig.getControllerPackage());
-        pc.setXml(tableStrategyConfig.getXmlName());
+        pc.setXml(tableStrategyConfig.getMapperPackage());
         mpg.setPackageInfo(pc);
 
         /*注入自定义配置，可以在 VM 中使用 cfg.entityLombokModel 设置的值*/
@@ -122,12 +135,12 @@ public class CodeController {
         /* 自定义模板配置，可以 copy 源码 mybatis-plus-generator/template 下面内容修改，
          放置自己项目的 src/main/resources/templates 目录下, 默认名称一下可以不配置，也可以自定义模板名称 */
         TemplateConfig tc = new TemplateConfig();
-        tc.setController("/templates/gen-template/controller.java.vm");
-        tc.setEntity("/templates/gen-template/entity.java.vm");
-        tc.setMapper("/templates/gen-template/mapper.java.vm");
-        tc.setXml("/templates/gen-template/mapper.xml.vm");
-        tc.setService("/templates/gen-template/service.java.vm");
-        tc.setServiceImpl("/templates/gen-template/serviceImpl.java.vm");
+        tc.setController(CommonConstant.TemplateLocation.CONTROLLER_LOCATION);
+        tc.setEntity(CommonConstant.TemplateLocation.ENTITY_LOCATION);
+        tc.setMapper(CommonConstant.TemplateLocation.MAPPER_LOCATION);
+        tc.setXml(CommonConstant.TemplateLocation.MAPPER_XML_LOCATION);
+        tc.setService(CommonConstant.TemplateLocation.SERVICE_LOCATION);
+        tc.setServiceImpl(CommonConstant.TemplateLocation.SERVICE_IMPL_LOCATION);
         mpg.setTemplate(tc);
 
         // 策略配置
@@ -167,7 +180,7 @@ public class CodeController {
         try {
             ZipFileUtil zip = new ZipFileUtil();
             ZipOutputStream zos = new ZipOutputStream(response.getOutputStream());
-            String fileName = request.getSession().getServletContext().getRealPath("/") + "/WEB-INF/upload/" + request.getSession().getId();
+            String fileName = dir;
             File ff = new File(fileName);
             if (!ff.exists()) {
                 ff.mkdirs();
@@ -176,7 +189,7 @@ public class CodeController {
             zos.flush();
             zos.close();
             //删除目录
-            FileUtil.deleteDirectory(request.getSession().getServletContext().getRealPath("/") + "/WEB-INF/upload/" + request.getSession().getId());
+            FileUtil.deleteDirectory(dir);
         } catch (IOException e) {
             e.printStackTrace();
         }

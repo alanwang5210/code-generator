@@ -10,8 +10,8 @@
             <el-col class="fn-tal">
                 <el-input class="fn-w200" placeholder="数据库配置名称" v-model="searchItem.name" clearable
                           size="medium"></el-input>
-                <el-select class="fn-w200" v-model="searchItem.driver" size="medium" clearable placeholder="请选择驱动类型">
-                    <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
+                <el-select class="fn-w200" v-model="searchItem.dbType" size="medium" clearable placeholder="请选择数据库类型">
+                    <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.label">
                     </el-option>
                 </el-select>
                 <el-input class="fn-w200" placeholder="数据库名称" v-model="searchItem.schemaName" clearable size="medium">
@@ -24,12 +24,12 @@
         </el-row>
 
         <el-table fixed class="fn-mt10" style="" :data="databaseList" highlight-current-row :height="height"
-                  :row-style="rowStyle" :header-row-style="headerRowStyle">
+                  :row-style="rowStyle" :header-row-style="headerRowStyle" el-table-column>
             <el-table-column prop="name" label="名称（唯一）" align="center" min-width="10%" show-overflow-tooltip>
             </el-table-column>
             <el-table-column prop="url" label="URL" align="center" min-width="15%" show-overflow-tooltip>
             </el-table-column>
-            <el-table-column prop="driver" label="driver" align="center" min-width="15%" show-overflow-tooltip>
+            <el-table-column prop="dbType" label="数据库类型" align="center" min-width="15%" show-overflow-tooltip>
             </el-table-column>
             <el-table-column prop="username" label="用户名" align="center" min-width="10%" show-overflow-tooltip>
             </el-table-column>
@@ -81,10 +81,11 @@
                 <el-row>
                     <el-col :span="24" class="fn-pr20">
                         <el-form-item class="fn-ml30" label="driver：" prop="driver">
-                            <el-select style="width:100%;" v-model="form.driver" clearable placeholder="请选择">
+                            <el-select style="width:100%;" v-model="form.driver" @change="processDBType" clearable
+                                       placeholder="请选择">
                                 <el-option
                                         v-for="item in options"
-                                        :key="item.value"
+                                        :key="item.label"
                                         :label="item.label"
                                         :value="item.value">
                                 </el-option>
@@ -159,10 +160,8 @@
                     /* 搜索内容 */
                     searchItem: {
                         name: null,
-                        driver: null,
+                        dbType: null,
                         schemaName: null,
-                        size: 10,
-                        current: null
                     },
                     /* 弹出框form 表单内容 */
                     form: {
@@ -178,7 +177,7 @@
                     },
                     /* 数据库driver 列表 */
                     options: [{
-                        value: 'com.mysql.jdbc.Driver',
+                        value: 'com.mysql.cj.jdbc.Driver',
                         label: 'Mysql'
                     }, {
                         value: 'oracle.jdbc.driver.OracleDriver',
@@ -208,7 +207,6 @@
                 },
                 created: function () {
                     this.queryDBList();
-                    var height = window.innerHeight;
                 },
                 mounted: function () {
                 },
@@ -227,7 +225,7 @@
                         _this.databaseList = [];
                         _this.loading = true;
                         axios.post(ctxPath + "/database/list", queryItem).then(function (response) {
-                            if (response.data.code == 0) {
+                            if (response.data.status) {
                                 var data = response.data.data;
                                 _this.databaseList = data.records;
                                 _this.loading = false;
@@ -258,7 +256,7 @@
                         axios.get(ctxPath + "/database/getByDbId?id=" + id
                         ).then(function (response) {
 
-                            if (response.data.code === 0) {
+                            if (response.data.status) {
                                 _this.form = response.data.data;
                             } else {
                                 _this.$message.error(response.data.message);
@@ -289,7 +287,7 @@
 
                         axios.post(ctxPath + "/database/save", _this.form
                         ).then(function (response) {
-                            if (response.data.code === 0) {
+                            if (response.data.status) {
                                 _this.$message.success('添加数据源成功!');
                                 _this.dialogFormVisible = false;
                                 _this.queryDBList();
@@ -303,14 +301,22 @@
 
                         axios.post(ctxPath + "/database/edit", _this.form
                         ).then(function (response) {
-                            if (response.data.code === 0) {
+                            if (response.data.status) {
                                 _this.$message.success('更新数据源成功!');
                                 _this.dialogFormVisible = false;
                                 _this.queryDBList();
                             } else {
-                                _this.$message.error(response.data.message);
+                                _this.$message.error('更新数据源失败!');
                             }
                         });
+                    },
+                    processDBType: function (value) {
+                        var _this = this;
+                        var option = this.options.find(function (e) {
+                            return e.value == value
+                        });
+
+                        _this.form.dbType = option.label;
                     },
                     deleteById: function (row) {
                         var _this = this;
@@ -324,11 +330,11 @@
 
                             axios.post(ctxPath + "/database/delete", data
                             ).then(function (response) {
-                                if (response.data.code === 0) {
+                                if (response.data.status) {
                                     _this.$message.success('删除数据源成功!');
                                     _this.queryDBList();
                                 } else {
-                                    _this.$message.error(response.data.message);
+                                    _this.$message.error('删除数据源失败!');
                                 }
                             });
                         }).catch(function () {
@@ -343,7 +349,7 @@
 
                         axios.post(ctxPath + "/database/validateConnection", _this.form
                         ).then(function (response) {
-                            if (response.data.code === 0) {
+                            if (response.data.status) {
                                 _this.$message.success(response.data.data);
                             } else {
                                 _this.$message.error(response.data.message);
@@ -361,7 +367,7 @@
 
                         axios.post(ctxPath + "/database/validateConnection", _this.form
                         ).then(function (response) {
-                            if (response.data.code === 0) {
+                            if (response.data.status) {
                                 window.parent.document.getElementById("content").src = ctxPath + "/table-page/?databaseId=" + id;
                             } else {
                                 _this.$message.error(response.data.message);

@@ -1,17 +1,32 @@
 server:
-  port: 8081
-  display-name: code-generator
+  port: 9003
 
 spring:
+  application:
+    name: code-generator
+  redis:
+    host: 10.65.1.99
+    port: 6379
+    password:
+    database: 0
+    timeout: 60
+    testOnBorrow: true
+    jedis:
+      pool:
+        max-total: 20
+        max-wait: -1
+        max-idle: 8
+        min-idle: 0
   datasource:
     dynamic:
       primary: codeGenerator
       datasource:
         codeGenerator:
-          url: jdbc:mysql://116.62.7.189:3306/code_generator?characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false
+          url: jdbc:mysql://localhost:3306/code_generator?characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
           username: root
-          password: Abc@1234
-          driver-class-name: com.mysql.jdbc.Driver
+          password: 123456
+          #com.mysql.cj.jdbc.Driver
+          driver-class-name: com.mysql.cj.jdbc.Driver
       druid:
         #初始化时建立物理连接的个数
         initialSize: 1
@@ -21,19 +36,25 @@ spring:
         minIdle: 1
         #获取连接时最大等待时间，单位毫秒
         maxWait: 60000
-  application:
-    name: mybatisplus-generator-web
-  thymeleaf:
-    cache: false
-    prefix: classpath:/templates
-    mode: HTML
-    suffix: .html
+#  thymeleaf:
+#    cache: false
+#    prefix: classpath:/templates
+#    mode: HTML
+#    suffix: .html
 
 ## Mybatis 配置
 mybatis-plus:
   check-config-location: true
   #指定xml映射位置
   mapper-locations: classpath:mapper/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+swagger2:
+  basePackage: com.alan.cloud.codegenerator
+  version: 1.0.0
+  title: L & P
+  description: 贯彻爱与和平！
 
 ignore:
   urls:
@@ -48,3 +69,4 @@ ignore:
     - /info
     - /health
     - /session
+    - /druid

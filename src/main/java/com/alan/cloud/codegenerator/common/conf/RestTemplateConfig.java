@@ -12,33 +12,38 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * @王合
- * @2019-09-02 23:26:27
- * <p>
  * restTemplate配置类
+ *
+ * @author 王合
+ * @date 2019-09-02 23:26:27
  */
 @Configuration
 public class RestTemplateConfig {
 
     @Bean
     RestTemplate restTemplate(RestTemplateBuilder builder) {
-        RestTemplate restTemplate = builder.build();// 生成一个RestTemplate实例
+        // 生成一个RestTemplate实例
+        RestTemplate restTemplate = builder.build();
         restTemplate.setRequestFactory(clientHttpRequestFactory());
         return restTemplate;
     }
 
+
     /**
      * 客户端请求链接策略
      *
-     * @return
+     * @return ClientHttpRequestFactory
      */
     @Bean
     public ClientHttpRequestFactory clientHttpRequestFactory() {
         HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory();
         clientHttpRequestFactory.setHttpClient(httpClientBuilder().build());
-        clientHttpRequestFactory.setConnectTimeout(6000); // 连接超时时间/毫秒
-        clientHttpRequestFactory.setReadTimeout(6000); // 读写超时时间/毫秒
-        clientHttpRequestFactory.setConnectionRequestTimeout(5000);// 请求超时时间/毫秒
+        // 连接超时时间/毫秒
+        clientHttpRequestFactory.setConnectTimeout(6000);
+        // 读写超时时间/毫秒
+        clientHttpRequestFactory.setReadTimeout(6000);
+        // 请求超时时间/毫秒
+        clientHttpRequestFactory.setConnectionRequestTimeout(5000);
         return clientHttpRequestFactory;
     }
 
@@ -60,7 +65,7 @@ public class RestTemplateConfig {
      * 每个主机的并发 ValidateAfterInactivity
      * 可用空闲连接过期时间,重用空闲连接时会先检查是否空闲时间超过这个时间，如果超过，释放socket重新建立
      *
-     * @return
+     * @return HttpClientConnectionManager
      */
     @Bean
     public HttpClientConnectionManager poolingConnectionManager() {

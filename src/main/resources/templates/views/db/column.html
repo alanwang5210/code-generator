@@ -31,7 +31,17 @@
                 </el-col>
                 <el-col :span="8" class="fn-pr20">
                     <el-form-item class="fn-ml30" label="包名:">
-                        <el-input v-model="columnForm.modelName"></el-input>
+                        <!--<el-input v-model="columnForm.modelName"></el-input>-->
+
+                        <el-input placeholder="请输入内容" v-model="columnForm.modelName" class="input-with-select">
+                            <el-select class="fn-w100" v-model="columnForm.modelParentName" slot="prepend"
+                                       placeholder="请选择">
+                                <el-option label="com." value="com"></el-option>
+                                <el-option label="cn." value="cn"></el-option>
+                                <el-option label="org." value="org"></el-option>
+                            </el-select>
+                        </el-input>
+
                     </el-form-item>
                 </el-col>
                 <el-col :span="8" class="fn-pr20">
@@ -143,7 +153,8 @@
                         remarks: [],
                         dbId: null,
                         prefix: null,
-                        modelName: 'com.xx',
+                        modelParentName: "com",
+                        modelName: '',
                         author: 'Auto-Generator',
                         entityName: '%s',
                         mapperName: '%sMapper',
@@ -151,7 +162,7 @@
                         serviceName: '%sService',
                         serviceImplName: '%sServiceImpl',
                         controllerName: '%sController',
-                        entityPackage: 'domain',
+                        entityPackage: 'model',
                         servicePackage: 'service',
                         serviceImplPackage: 'service.impl',
                         mapperPackage: 'mapper',
@@ -189,7 +200,7 @@
                                     tableName: tableName
                                 }
                             }).then(function (response) {
-                            if (response.data.code == 0) {
+                            if (response.data.status) {
                                 var data = response.data.data;
                                 _this.columnList = data.listColumn;
                                 _this.loading = false;

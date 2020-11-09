@@ -8,6 +8,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  * 分页插件
+ *
+ * @author wh
+ * @date 2019-10-13 14:29:55
  */
 @Configuration
 @EnableTransactionManagement
